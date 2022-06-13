@@ -7,6 +7,7 @@
         <v-spacer></v-spacer>
         <data-import-dialog @import="onDataImport" />
       </v-toolbar>
+      <date-select-dialog @change="onMonthChange" />
     </template>
 
     <template v-slot:item.time="{ value }">{{ value | date }}</template>
@@ -17,13 +18,15 @@
 
 <script>
 import currency from "currency.js";
-import { format } from "date-fns";
+import { addMonths, format, startOfMonth, endOfMonth, isEqual, isAfter, isBefore } from "date-fns";
 import DataImportDialog from "./DataImportDialog";
+import DateSelectDialog from "./DateSelectDialog";
 
 export default {
   name: "JournalAccount",
   components: {
     DataImportDialog,
+    DateSelectDialog,
   },
   filters: {
     date(value) {
@@ -48,6 +51,7 @@ export default {
         { text: "账单金额", value: "amount" },
       ],
 
+      backup: [],
       transactions: [],
 
       dialog: false,
@@ -56,6 +60,17 @@ export default {
   methods: {
     onDataImport(json) {
       this.transactions = json;
+      this.backup = [...json];
+    },
+
+    onMonthChange(month) {
+      const m = new Date(month);
+      const start = startOfMonth(m);
+      const end = endOfMonth(m);
+      this.transactions = this.backup.filter((item) => {
+        const d = new Date(parseInt(item.time, 10));
+        return (isAfter(d, start) || isEqual(d, start)) && (isBefore(d, end) || isEqual(d, end));
+      });
     },
   },
 };
