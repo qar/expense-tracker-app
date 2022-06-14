@@ -10,7 +10,17 @@
 
       <v-card-text>
         <v-container>
-          <v-file-input truncate-length="15" @change="onFileChange"></v-file-input>
+          <v-file-input
+            truncate-length="15"
+            placeholder="导入账单"
+            @change="onTransactionsFileChange"
+          ></v-file-input>
+
+          <v-file-input
+            truncate-length="15"
+            placeholder="导入分类"
+            @change="onCategoriesFileChange"
+          ></v-file-input>
         </v-container>
       </v-card-text>
 
@@ -30,9 +40,10 @@ export default {
   name: "DataImportDialog",
   data() {
     return {
-      json: null,
+      transactions: [],
+      categories: [],
       dialog: false,
-      formTitle: "导入账单",
+      formTitle: "数据导入",
       editedItem: {},
     };
   },
@@ -49,17 +60,29 @@ export default {
 
     async onFileChange(file) {
       const text = await this.readFileAsync(file);
-      this.json = await csvtojsonV2().fromString(text);
+      return await csvtojsonV2().fromString(text);
+    },
+
+    async onTransactionsFileChange(file) {
+      this.transactions = await this.onFileChange(file);
+    },
+
+    async onCategoriesFileChange(file) {
+      this.categories = await this.onFileChange(file);
     },
 
     close() {
-      this.json = null;
+      this.transactions = [];
+      this.categories = [];
       this.dialog = false;
     },
 
     save() {
       this.dialog = false;
-      this.$emit("import", this.json);
+      this.$emit("import", {
+        transactions: this.transactions,
+        categories: this.categories,
+      });
     },
   },
 };

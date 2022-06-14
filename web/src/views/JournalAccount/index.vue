@@ -13,6 +13,7 @@
     <template v-slot:item.time="{ value }">{{ value | date }}</template>
     <template v-slot:item.type="{ value }">{{ value === "0" ? "支出" : "收入" }}</template>
     <template v-slot:item.amount="{ value }">{{ value | rmb }}</template>
+    <template v-slot:item.category="{ value }">{{ categoryMap[value].name }}</template>
   </v-data-table>
 </template>
 
@@ -53,13 +54,26 @@ export default {
 
       backup: [],
       transactions: [],
+      categories: [],
 
       dialog: false,
     };
   },
+  computed: {
+    categoryMap() {
+      return this.categories.reduce(
+        (sum, ele) => ({
+          ...sum,
+          [ele.id]: ele,
+        }),
+        {}
+      );
+    },
+  },
   methods: {
     onDataImport(json) {
-      this.transactions = json;
+      this.transactions = json.transactions;
+      this.categories = json.categories;
       this.backup = [...json];
     },
 
@@ -67,7 +81,7 @@ export default {
       const m = new Date(month);
       const start = startOfMonth(m);
       const end = endOfMonth(m);
-      this.transactions = this.backup.filter((item) => {
+      this.transactions = (this.backup.transactions || []).filter((item) => {
         const d = new Date(parseInt(item.time, 10));
         return (isAfter(d, start) || isEqual(d, start)) && (isBefore(d, end) || isEqual(d, end));
       });
