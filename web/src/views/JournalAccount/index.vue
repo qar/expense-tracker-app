@@ -1,5 +1,10 @@
 <template>
-  <v-data-table :headers="headers" :items="transactions" :items-per-page="5" class="elevation-1">
+  <v-data-table
+    :headers="headers"
+    :items="displayTransactions"
+    :items-per-page="5"
+    class="elevation-1"
+  >
     <template v-slot:top>
       <v-toolbar flat>
         <v-toolbar-title>账单</v-toolbar-title>
@@ -19,6 +24,7 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import currency from "currency.js";
 import { addMonths, format, startOfMonth, endOfMonth, isEqual, isAfter, isBefore } from "date-fns";
 import DataImportDialog from "./DataImportDialog";
@@ -56,13 +62,30 @@ export default {
       ],
 
       backup: [],
-      transactions: [],
-      categories: [],
 
       dialog: false,
+      month: null,
     };
   },
   computed: {
+    ...mapState("transactions", ["transactions"]),
+    ...mapState("categories", ["categories"]),
+
+    displayTransactions() {
+      if (!this.month) {
+        return this.transactions;
+      }
+
+      const m = new Date(this.month);
+      const start = startOfMonth(m);
+      const end = endOfMonth(m);
+
+      return this.transactions.filter((item) => {
+        const d = new Date(parseInt(item.time, 10));
+        return (isAfter(d, start) || isEqual(d, start)) && (isBefore(d, end) || isEqual(d, end));
+      });
+    },
+
     categoryMap() {
       return this.categories.reduce(
         (sum, ele) => ({
@@ -76,19 +99,12 @@ export default {
   methods: {
     onEntryAdd() {},
     onDataImport(json) {
-      this.transactions = json.transactions;
-      this.categories = json.categories;
-      this.backup = [...json];
+      this.$store.commit("transactions/setTransactions", json.transactions);
+      this.$store.commit("categories/setCategories", json.categories);
     },
 
     onMonthChange(month) {
-      const m = new Date(month);
-      const start = startOfMonth(m);
-      const end = endOfMonth(m);
-      this.transactions = (this.backup.transactions || []).filter((item) => {
-        const d = new Date(parseInt(item.time, 10));
-        return (isAfter(d, start) || isEqual(d, start)) && (isBefore(d, end) || isEqual(d, end));
-      });
+      this.month = month;
     },
   },
 };
