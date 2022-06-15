@@ -29,7 +29,7 @@ export default {
     menu: null,
     menus: [
       {
-        path: "/journal-account",
+        path: "/",
         label: "账单",
       },
       {
