@@ -6,6 +6,7 @@
         <v-divider class="mx-4" inset vertical></v-divider>
         <v-spacer></v-spacer>
         <data-import-dialog @import="onDataImport" />
+        <add-entry-dialog @change="onEntryAdd" />
       </v-toolbar>
       <date-select-dialog @change="onMonthChange" />
     </template>
@@ -21,11 +22,13 @@
 import currency from "currency.js";
 import { addMonths, format, startOfMonth, endOfMonth, isEqual, isAfter, isBefore } from "date-fns";
 import DataImportDialog from "./DataImportDialog";
+import AddEntryDialog from "./AddEntryDialog";
 import DateSelectDialog from "./DateSelectDialog";
 
 export default {
   name: "JournalAccount",
   components: {
+    AddEntryDialog,
     DataImportDialog,
     DateSelectDialog,
   },
@@ -71,6 +74,7 @@ export default {
     },
   },
   methods: {
+    onEntryAdd() {},
     onDataImport(json) {
       this.transactions = json.transactions;
       this.categories = json.categories;
