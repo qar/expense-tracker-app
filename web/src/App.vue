@@ -38,5 +38,10 @@ export default {
       },
     ],
   }),
+
+  created() {
+    this.$store.dispatch("transactions/loadData");
+    this.$store.dispatch("categories/loadData");
+  },
 };
 </script>

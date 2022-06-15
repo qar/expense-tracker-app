@@ -99,8 +99,8 @@ export default {
   methods: {
     onEntryAdd() {},
     onDataImport(json) {
-      this.$store.commit("transactions/setTransactions", json.transactions);
-      this.$store.commit("categories/setCategories", json.categories);
+      this.$store.dispatch("transactions/setData", json.transactions);
+      this.$store.dispatch("categories/setData", json.categories);
     },
 
     onMonthChange(month) {
