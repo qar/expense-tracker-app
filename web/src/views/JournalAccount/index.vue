@@ -13,19 +13,21 @@
               <v-toolbar flat>
                 <v-toolbar-title>账单</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
+                <v-chip-group column>
+                  <v-chip label outlined class="ma-2" color="teal"> 收入 {{ incomeText }}</v-chip>
+                  <v-chip label outlined class="ma-2" color="red"> 支出 {{ outcomeText }}</v-chip>
+                </v-chip-group>
                 <v-spacer></v-spacer>
                 <data-import-dialog @import="onDataImport" />
                 <add-entry-dialog @change="onEntryAdd" />
               </v-toolbar>
-              <date-select-dialog v-model="month" />
             </template>
 
             <template v-slot:header="{ props: { headers } }">
               <thead>
                 <tr>
                   <th :colspan="headers.length">
-                    <v-chip label outlined class="ma-2" color="teal"> 收入 {{ incomeText }}</v-chip>
-                    <v-chip label outlined class="ma-2" color="red"> 支出 {{ outcomeText }}</v-chip>
+                    <date-select-dialog v-model="month" />
                   </th>
                 </tr>
               </thead>

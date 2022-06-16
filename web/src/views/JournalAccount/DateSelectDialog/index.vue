@@ -9,7 +9,7 @@
         v-on="on"
       ></v-text-field>
     </template>
-    <v-date-picker v-model="date" type="month" scrollable>
+    <v-date-picker v-model="date" type="month" scrollable hide-details>
       <v-spacer></v-spacer>
       <v-btn text color="primary" @click="dialog = false">取消</v-btn>
       <v-btn text color="primary" @click="onOk">确定</v-btn>
