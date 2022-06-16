@@ -23,7 +23,12 @@
             <template v-slot:header="{ props: { headers } }">
               <thead>
                 <tr>
-                  <th :colspan="headers.length">This is a header</th>
+                  <th :colspan="headers.length">
+                    <v-chip label outlined class="ma-2" color="teal"> 收入 {{ incomeText }}</v-chip>
+                    <v-chip label outlined class="ma-2" color="teal">
+                      支出 {{ outcomeText }}</v-chip
+                    >
+                  </th>
                 </tr>
               </thead>
             </template>
@@ -111,7 +116,36 @@ export default {
         {}
       );
     },
+
+    /**
+     * 表格所展示数据中的收入类型数据汇总并格式化
+     */
+    incomeText() {
+      const value = this.displayTransactions.reduce((sum, ele) => {
+        if (ele.type === "1") {
+          return sum.add(ele.amount);
+        }
+        return sum;
+      }, currency(0.0));
+
+      return value.format();
+    },
+
+    /**
+     * 表格所展示数据中的支出类型数据汇总并格式化
+     */
+    outcomeText() {
+      const value = this.displayTransactions.reduce((sum, ele) => {
+        if (ele.type === "0") {
+          return sum.add(ele.amount);
+        }
+        return sum;
+      }, currency(0.0));
+
+      return value.format();
+    },
   },
+
   methods: {
     onEntryAdd() {},
     onDataImport(json) {
