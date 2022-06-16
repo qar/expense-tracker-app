@@ -21,6 +21,8 @@
 export default {
   name: "DateSelectDialog",
 
+  props: ["value"],
+
   data() {
     return {
       date: null,
@@ -28,10 +30,21 @@ export default {
     };
   },
 
+  watch: {
+    value: {
+      handler(newV) {
+        this.date = newV;
+      },
+      immediate: true,
+    },
+  },
+
   methods: {
     onOk() {
       this.dialog = false;
+      this.$refs.dialog.save(this.date);
       this.$emit("change", this.date);
+      this.$emit("input", this.date);
     },
   },
 };

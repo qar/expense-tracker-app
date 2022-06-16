@@ -17,7 +17,7 @@
                 <data-import-dialog @import="onDataImport" />
                 <add-entry-dialog @change="onEntryAdd" />
               </v-toolbar>
-              <date-select-dialog @change="onMonthChange" />
+              <date-select-dialog v-model="month" />
             </template>
 
             <template v-slot:header="{ props: { headers } }">
@@ -25,9 +25,7 @@
                 <tr>
                   <th :colspan="headers.length">
                     <v-chip label outlined class="ma-2" color="teal"> 收入 {{ incomeText }}</v-chip>
-                    <v-chip label outlined class="ma-2" color="teal">
-                      支出 {{ outcomeText }}</v-chip
-                    >
+                    <v-chip label outlined class="ma-2" color="red"> 支出 {{ outcomeText }}</v-chip>
                   </th>
                 </tr>
               </thead>
@@ -151,10 +149,6 @@ export default {
     onDataImport(json) {
       this.$store.dispatch("transactions/setData", json.transactions);
       this.$store.dispatch("categories/setData", json.categories);
-    },
-
-    onMonthChange(month) {
-      this.month = month;
     },
   },
 };
