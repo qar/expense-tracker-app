@@ -23,5 +23,10 @@ export default {
       ctx.commit("setTransactions", data);
       persistData(STORAGE_KEY, data);
     },
+
+    async addEntry(ctx, data) {
+      const newData = [...ctx.state.transactions, data];
+      ctx.dispatch("setData", newData);
+    },
   },
 };

@@ -145,7 +145,9 @@ export default {
   },
 
   methods: {
-    onEntryAdd() {},
+    onEntryAdd(data) {
+      this.$store.dispatch("transactions/addEntry", data);
+    },
     onDataImport(json) {
       this.$store.dispatch("transactions/setData", json.transactions);
       this.$store.dispatch("categories/setData", json.categories);

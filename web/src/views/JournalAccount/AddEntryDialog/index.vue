@@ -23,7 +23,11 @@
               </v-col>
 
               <v-col cols="12" md="12">
-                <v-text-field label="时间" value="12:30:00" type="datetime-local"></v-text-field>
+                <v-text-field
+                  label="时间"
+                  v-model="formData.time"
+                  type="datetime-local"
+                ></v-text-field>
               </v-col>
 
               <v-col cols="12" md="12">
@@ -72,8 +76,15 @@ export default {
           value: "1",
         },
       ],
-      categories: [],
     };
+  },
+  computed: {
+    categories() {
+      return this.$store.state.categories.categories.map((i) => ({
+        value: i.id,
+        label: i.name,
+      }));
+    },
   },
   methods: {
     close() {
@@ -82,6 +93,7 @@ export default {
 
     save() {
       this.dialog = false;
+      this.$emit("change", this.formData);
     },
   },
 };
