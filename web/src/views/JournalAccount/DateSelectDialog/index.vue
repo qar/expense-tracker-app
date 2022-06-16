@@ -4,7 +4,6 @@
       <v-text-field
         v-model="date"
         label="选择账单月份"
-        prepend-icon="mdi-calendar"
         readonly
         v-bind="attrs"
         v-on="on"

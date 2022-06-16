@@ -1,26 +1,42 @@
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="displayTransactions"
-    :items-per-page="5"
-    class="elevation-1"
-  >
-    <template v-slot:top>
-      <v-toolbar flat>
-        <v-toolbar-title>账单</v-toolbar-title>
-        <v-divider class="mx-4" inset vertical></v-divider>
-        <v-spacer></v-spacer>
-        <data-import-dialog @import="onDataImport" />
-        <add-entry-dialog @change="onEntryAdd" />
-      </v-toolbar>
-      <date-select-dialog @change="onMonthChange" />
-    </template>
+  <v-container fluid class="fill-height grey lighten-5">
+    <v-row no-gutters class="fill-height">
+      <v-col cols="12" sm="12" md="12">
+        <v-card tile outlined width="100%">
+          <v-data-table
+            :headers="headers"
+            :items="displayTransactions"
+            :items-per-page="5"
+            class="elevation-1"
+          >
+            <template v-slot:top>
+              <v-toolbar flat>
+                <v-toolbar-title>账单</v-toolbar-title>
+                <v-divider class="mx-4" inset vertical></v-divider>
+                <v-spacer></v-spacer>
+                <data-import-dialog @import="onDataImport" />
+                <add-entry-dialog @change="onEntryAdd" />
+              </v-toolbar>
+              <date-select-dialog @change="onMonthChange" />
+            </template>
 
-    <template v-slot:item.time="{ value }">{{ value | date }}</template>
-    <template v-slot:item.type="{ value }">{{ value === "0" ? "支出" : "收入" }}</template>
-    <template v-slot:item.amount="{ value }">{{ value | rmb }}</template>
-    <template v-slot:item.category="{ value }">{{ categoryMap[value].name }}</template>
-  </v-data-table>
+            <template v-slot:header="{ props: { headers } }">
+              <thead>
+                <tr>
+                  <th :colspan="headers.length">This is a header</th>
+                </tr>
+              </thead>
+            </template>
+
+            <template v-slot:item.time="{ value }">{{ value | date }}</template>
+            <template v-slot:item.type="{ value }">{{ value === "0" ? "支出" : "收入" }}</template>
+            <template v-slot:item.amount="{ value }">{{ value | rmb }}</template>
+            <template v-slot:item.category="{ value }">{{ categoryMap[value].name }}</template>
+          </v-data-table>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
