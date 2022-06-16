@@ -36,6 +36,10 @@ export default {
         path: "/categories",
         label: "账单分类",
       },
+      {
+        path: "/stats",
+        label: "统计分析",
+      },
     ],
   }),
 
