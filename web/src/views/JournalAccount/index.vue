@@ -18,8 +18,8 @@
                   <v-chip label outlined class="ma-2" color="red"> 支出 {{ outcomeText }}</v-chip>
                 </v-chip-group>
                 <v-spacer></v-spacer>
-                <data-import-dialog @import="onDataImport" />
-                <add-entry-dialog @change="onEntryAdd" />
+                <data-import-dialog class="ma-2" @import="onDataImport" />
+                <add-entry-dialog class="ma-2" @change="onEntryAdd" />
               </v-toolbar>
             </template>
 

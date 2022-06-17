@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="dialog" max-width="500px">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">添加</v-btn>
+      <v-btn color="primary" dark class="ml-2" v-bind="attrs" v-on="on">添加</v-btn>
     </template>
     <v-card>
       <v-card-title>
