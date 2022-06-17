@@ -3,6 +3,7 @@
     <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
         <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
+        <h1 class="text-h5 font-weight-medium">My Expenses</h1>
       </div>
     </v-app-bar>
 
