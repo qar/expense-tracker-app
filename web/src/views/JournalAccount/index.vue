@@ -28,6 +28,15 @@
                 <tr>
                   <th :colspan="headers.length">
                     <date-select-dialog v-model="month" />
+                    <v-select
+                      v-model="selectedCategories"
+                      :items="categories"
+                      item-value="id"
+                      item-text="name"
+                      :menu-props="{ maxHeight: '400' }"
+                      label="选择账单分类"
+                      multiple
+                    ></v-select>
                   </th>
                 </tr>
               </thead>
@@ -86,6 +95,7 @@ export default {
 
       dialog: false,
       month: null,
+      selectedCategories: [],
     };
   },
   computed: {
@@ -93,18 +103,9 @@ export default {
     ...mapState("categories", ["categories"]),
 
     displayTransactions() {
-      if (!this.month) {
-        return this.transactions;
-      }
-
-      const m = new Date(this.month);
-      const start = startOfMonth(m);
-      const end = endOfMonth(m);
-
-      return this.transactions.filter((item) => {
-        const d = new Date(parseInt(item.time, 10));
-        return (isAfter(d, start) || isEqual(d, start)) && (isBefore(d, end) || isEqual(d, end));
-      });
+      return this.transactions
+        .filter((item) => this.filterByMonth(item, this.month))
+        .filter((item) => this.filterByCategory(item, this.selectedCategories));
     },
 
     categoryMap() {
@@ -147,6 +148,25 @@ export default {
   },
 
   methods: {
+    filterByMonth(item, month) {
+      if (!month) {
+        return true;
+      }
+      const m = new Date(month);
+      const start = startOfMonth(m);
+      const end = endOfMonth(m);
+
+      const d = new Date(parseInt(item.time, 10));
+      return (isAfter(d, start) || isEqual(d, start)) && (isBefore(d, end) || isEqual(d, end));
+    },
+
+    filterByCategory(item, selectedCategories = []) {
+      if (!selectedCategories.length) {
+        return true;
+      }
+      return selectedCategories.includes(item.category);
+    },
+
     onEntryAdd(data) {
       this.$store.dispatch("transactions/addEntry", data);
     },
