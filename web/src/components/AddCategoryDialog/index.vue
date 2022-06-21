@@ -1,7 +1,10 @@
 <template>
   <v-dialog v-model="dialog" max-width="500px">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn color="primary" dark class="ml-2" v-bind="attrs" v-on="on">添加</v-btn>
+      <v-btn v-if="quickLink" color="blue darken-1" text plain v-bind="attrs" v-on="on">{{
+        formTitle
+      }}</v-btn>
+      <v-btn v-else color="primary" dark class="ml-2" v-bind="attrs" v-on="on">添加</v-btn>
     </template>
     <v-card>
       <v-card-title>
@@ -47,6 +50,12 @@
 <script>
 export default {
   name: "AddCategoryDialog",
+  props: {
+    quickLink: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data() {
     return {
       rules: {
@@ -56,7 +65,7 @@ export default {
       valid: false,
       formData: {},
       dialog: false,
-      formTitle: "记帐",
+      formTitle: "新建账单分类",
       types: [
         {
           label: "支出",

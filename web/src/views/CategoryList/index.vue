@@ -28,7 +28,7 @@
 
 <script>
 import { mapState } from "vuex";
-import AddCategoryDialog from "./AddCategoryDialog";
+import AddCategoryDialog from "@/components/AddCategoryDialog";
 
 export default {
   name: "CategoryList",
