@@ -25,7 +25,8 @@ export default {
     },
 
     async addEntry(ctx, data) {
-      const newData = [...ctx.state.transactions, data];
+      const time = new Date(data.time).valueOf().toString();
+      const newData = [...ctx.state.transactions, { ...data, time }];
       ctx.dispatch("setData", newData);
     },
   },
