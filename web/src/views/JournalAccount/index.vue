@@ -44,7 +44,9 @@
             <template v-slot:item.time="{ value }">{{ value | date }}</template>
             <template v-slot:item.type="{ value }">{{ value === "0" ? "支出" : "收入" }}</template>
             <template v-slot:item.amount="{ value }">{{ value | rmb }}</template>
-            <template v-slot:item.category="{ value }">{{ categoryMap[value].name }}</template>
+            <template v-slot:item.category="{ value }">{{
+              value | category(categoryMap)
+            }}</template>
           </v-data-table>
         </v-card>
       </v-col>
@@ -68,6 +70,10 @@ export default {
   filters: {
     date(value) {
       return format(new Date(parseInt(value, 10)), "yyyy-MM-dd HH:mm:ss");
+    },
+
+    category(value, categoryMap) {
+      return categoryMap[value]?.name || "-";
     },
 
     rmb(value) {

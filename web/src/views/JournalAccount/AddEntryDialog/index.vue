@@ -16,6 +16,7 @@
                 <v-select
                   v-model="formData.type"
                   :items="types"
+                  :rules="[rules.required]"
                   item-value="value"
                   item-text="label"
                   label="类型"
@@ -26,6 +27,7 @@
                 <v-text-field
                   label="时间"
                   v-model="formData.time"
+                  :rules="[rules.required]"
                   type="datetime-local"
                 ></v-text-field>
               </v-col>
@@ -34,14 +36,25 @@
                 <v-select
                   v-model="formData.category"
                   :items="categories"
+                  :rules="[rules.required]"
                   item-value="value"
                   item-text="label"
                   label="分类"
-                ></v-select>
+                >
+                  <template v-slot:append-item>
+                    <v-divider class="mb-2"></v-divider>
+                    <add-category-dialog class="ma-2" @change="onCategoryAdd" quickLink />
+                  </template>
+                </v-select>
               </v-col>
 
               <v-col cols="12" md="12">
-                <v-text-field label="金额" v-model="formData.amount" prefix="￥"></v-text-field>
+                <v-text-field
+                  label="金额"
+                  v-model="formData.amount"
+                  :rules="[rules.required]"
+                  prefix="￥"
+                ></v-text-field>
               </v-col>
             </v-row>
           </v-container>
@@ -51,19 +64,29 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="close">取消</v-btn>
-        <v-btn color="blue darken-1" text @click="save">确认</v-btn>
+        <v-btn :disabled="!valid" color="blue darken-1" text @click="save">确认</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script>
+import AddCategoryDialog from "@/components/AddCategoryDialog";
+
 export default {
   name: "AddEntryDialog",
+  components: {
+    AddCategoryDialog,
+  },
   data() {
     return {
       valid: false,
-      formData: {},
+      formData: {
+        time: new Date().toISOString().slice(0, 19),
+      },
+      rules: {
+        required: (value) => !!value || "必填",
+      },
       dialog: false,
       formTitle: "记帐",
       types: [
@@ -87,8 +110,16 @@ export default {
     },
   },
   methods: {
+    onCategoryAdd(data) {
+      this.$store.dispatch("categories/add", data);
+    },
+
     close() {
       this.dialog = false;
+    },
+
+    validate() {
+      this.$refs.form.validate();
     },
 
     save() {
