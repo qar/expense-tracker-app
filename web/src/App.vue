@@ -5,6 +5,11 @@
         <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
         <h1 class="text-h5 font-weight-medium">My Expenses</h1>
       </div>
+
+      <v-spacer />
+
+      <settings-button @import="openImportDialog" />
+      <data-import-dialog :visible.sync="importDialogVisible" @import="onDataImport" />
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" app>
@@ -22,10 +27,18 @@
 </template>
 
 <script>
+import SettingsButton from "@/components/SettingsButton";
+import DataImportDialog from "@/components/DataImportDialog";
+
 export default {
   name: "App",
+  components: {
+    DataImportDialog,
+    SettingsButton,
+  },
 
   data: () => ({
+    importDialogVisible: false,
     drawer: false,
     menu: null,
     menus: [
@@ -47,6 +60,17 @@ export default {
   created() {
     this.$store.dispatch("transactions/loadData");
     this.$store.dispatch("categories/loadData");
+  },
+
+  methods: {
+    openImportDialog() {
+      this.importDialogVisible = true;
+    },
+
+    onDataImport(json) {
+      this.$store.dispatch("transactions/setData", json.transactions);
+      this.$store.dispatch("categories/setData", json.categories);
+    },
   },
 };
 </script>

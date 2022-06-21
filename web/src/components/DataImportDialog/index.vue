@@ -1,8 +1,5 @@
 <template>
-  <v-dialog v-model="dialog" max-width="500px">
-    <template v-slot:activator="{ on, attrs }">
-      <v-btn color="primary" dark class="ml-2" v-bind="attrs" v-on="on">导入</v-btn>
-    </template>
+  <v-dialog :value="visible" max-width="500px">
     <v-card>
       <v-card-title>
         <span class="text-h5">{{ formTitle }}</span>
@@ -38,6 +35,16 @@ import csvtojsonV2 from "csvtojson";
 
 export default {
   name: "DataImportDialog",
+  props: {
+    visible: {
+      type: Boolean,
+      default: false,
+    },
+    item: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
   data() {
     return {
       transactions: [],
@@ -74,11 +81,10 @@ export default {
     close() {
       this.transactions = [];
       this.categories = [];
-      this.dialog = false;
+      this.$emit("update:visible", false);
     },
-
     save() {
-      this.dialog = false;
+      this.$emit("update:visible", false);
       this.$emit("import", {
         transactions: this.transactions,
         categories: this.categories,

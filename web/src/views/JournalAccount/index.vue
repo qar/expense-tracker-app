@@ -18,7 +18,6 @@
                   <v-chip label outlined class="ma-2" color="red"> 支出 {{ outcomeText }}</v-chip>
                 </v-chip-group>
                 <v-spacer></v-spacer>
-                <data-import-dialog class="ma-2" @import="onDataImport" />
                 <add-entry-dialog class="ma-2" @change="onEntryAdd" />
               </v-toolbar>
             </template>
@@ -57,7 +56,6 @@
 import { mapState } from "vuex";
 import currency from "currency.js";
 import { addMonths, format, startOfMonth, endOfMonth, isEqual, isAfter, isBefore } from "date-fns";
-import DataImportDialog from "./DataImportDialog";
 import AddEntryDialog from "./AddEntryDialog";
 import DateSelectDialog from "./DateSelectDialog";
 
@@ -65,7 +63,6 @@ export default {
   name: "JournalAccount",
   components: {
     AddEntryDialog,
-    DataImportDialog,
     DateSelectDialog,
   },
   filters: {
@@ -169,10 +166,6 @@ export default {
 
     onEntryAdd(data) {
       this.$store.dispatch("transactions/addEntry", data);
-    },
-    onDataImport(json) {
-      this.$store.dispatch("transactions/setData", json.transactions);
-      this.$store.dispatch("categories/setData", json.categories);
     },
   },
 };
