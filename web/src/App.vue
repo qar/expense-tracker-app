@@ -8,7 +8,11 @@
 
       <v-spacer />
 
-      <settings-button @import="openImportDialog" />
+      <settings-button
+        @import="openImportDialog"
+        @export-transactions="exportTransactions()"
+        @export-categories="exportCategories()"
+      />
       <data-import-dialog :visible.sync="importDialogVisible" @import="onDataImport" />
     </v-app-bar>
 
@@ -29,6 +33,8 @@
 <script>
 import SettingsButton from "@/components/SettingsButton";
 import DataImportDialog from "@/components/DataImportDialog";
+import { Parser } from "json2csv";
+import FileSaver from "file-saver";
 
 export default {
   name: "App",
@@ -70,6 +76,24 @@ export default {
     onDataImport(json) {
       this.$store.dispatch("transactions/setData", json.transactions);
       this.$store.dispatch("categories/setData", json.categories);
+    },
+
+    exportTransactions() {
+      const data = this.$store.state.transactions.transactions;
+      const fields = ["id", "time", "type", "category", "amount"];
+      const parser = new Parser({ fields });
+      const csv = parser.parse(data);
+      const blob = new Blob([csv], { type: "text/plain;charset=utf-8" });
+      FileSaver.saveAs(blob, "transactions.csv");
+    },
+
+    exportCategories() {
+      const data = this.$store.state.categories.categories;
+      const fields = ["id", "name", "type"];
+      const parser = new Parser({ fields });
+      const csv = parser.parse(data);
+      const blob = new Blob([csv], { type: "text/plain;charset=utf-8" });
+      FileSaver.saveAs(blob, "categories.csv");
     },
   },
 };
