@@ -37,9 +37,9 @@ export default {
       let newData;
       if (index >= 0) {
         newData = [...ctx.state.transactions];
-        newData[index] = { ...data, time };
+        newData[index] = { ...data, id, time };
       } else {
-        newData = [...ctx.state.transactions, { ...data, time }];
+        newData = [...ctx.state.transactions, { ...data, id, time }];
       }
       ctx.dispatch("setData", newData);
     },
