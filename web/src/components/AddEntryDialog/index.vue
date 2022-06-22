@@ -1,17 +1,23 @@
 <template>
-  <v-dialog v-model="dialog" max-width="500px">
-    <template v-slot:activator="{ on, attrs }">
-      <v-btn color="primary" dark class="ml-2" v-bind="attrs" v-on="on">添加</v-btn>
-    </template>
+  <v-dialog :value="visible" persistent max-width="500px">
     <v-card>
       <v-card-title>
         <span class="text-h5">{{ formTitle }}</span>
       </v-card-title>
 
       <v-card-text>
-        <v-form v-model="valid">
+        <v-form ref="form" v-model="valid">
           <v-container>
             <v-row>
+              <v-col cols="12" md="12">
+                <v-text-field
+                  label="金额"
+                  v-model="formData.amount"
+                  :rules="[rules.required, rules.currency]"
+                  prefix="￥"
+                ></v-text-field>
+              </v-col>
+
               <v-col cols="12" md="12">
                 <v-select
                   v-model="formData.type"
@@ -21,6 +27,21 @@
                   item-text="label"
                   label="类型"
                 ></v-select>
+              </v-col>
+
+              <v-col cols="12" md="12">
+                <v-select
+                  v-model="formData.category"
+                  :items="categories"
+                  item-value="value"
+                  item-text="label"
+                  label="分类"
+                >
+                  <template v-slot:append-item>
+                    <v-divider class="mb-2"></v-divider>
+                    <add-category-dialog class="ma-2" @change="onCategoryAdd" quickLink />
+                  </template>
+                </v-select>
               </v-col>
 
               <v-col cols="12" md="12">
@@ -59,6 +80,8 @@
                       v-model="formData.hour"
                       :items="hourOptions"
                       :rules="[rules.required]"
+                      item-value="value"
+                      item-text="label"
                       label="时"
                     ></v-select>
                   </v-col>
@@ -67,35 +90,12 @@
                       v-model="formData.minute"
                       :items="minuteOptions"
                       :rules="[rules.required]"
+                      item-value="value"
+                      item-text="label"
                       label="分"
                     ></v-select>
                   </v-col>
                 </v-row>
-              </v-col>
-
-              <v-col cols="12" md="12">
-                <v-select
-                  v-model="formData.category"
-                  :items="categories"
-                  :rules="[rules.required]"
-                  item-value="value"
-                  item-text="label"
-                  label="分类"
-                >
-                  <template v-slot:append-item>
-                    <v-divider class="mb-2"></v-divider>
-                    <add-category-dialog class="ma-2" @change="onCategoryAdd" quickLink />
-                  </template>
-                </v-select>
-              </v-col>
-
-              <v-col cols="12" md="12">
-                <v-text-field
-                  label="金额"
-                  v-model="formData.amount"
-                  :rules="[rules.required, rules.currency]"
-                  prefix="￥"
-                ></v-text-field>
               </v-col>
             </v-row>
           </v-container>
@@ -119,15 +119,23 @@ export default {
   components: {
     AddCategoryDialog,
   },
+  props: {
+    visible: {
+      type: Boolean,
+      default: false,
+    },
+    data: {
+      type: Object,
+      default: undefined,
+    },
+  },
   data() {
     return {
       valid: false,
       dateMenu: false,
-      formData: {
-        time: new Date().toISOString().slice(0, 19),
-      },
+      formData: {},
       rules: {
-        required: (value) => !!value || "必填",
+        required: (value) => (!!value && value !== 0) || "必填",
         currency: (value) => !Number.isNaN(Number(value)) || "无法识别的金额",
       },
       dialog: false,
@@ -148,7 +156,10 @@ export default {
     hourOptions() {
       const options = [];
       for (let h = 0; h <= 24; h++) {
-        options.push(`${h < 10 ? "0" + h : h}`);
+        options.push({
+          label: `${h < 10 ? "0" + h : h}`,
+          value: h,
+        });
       }
       return options;
     },
@@ -156,7 +167,10 @@ export default {
     minuteOptions() {
       const options = [];
       for (let m = 0; m <= 59; m++) {
-        options.push(`${m < 10 ? "0" + m : m}`);
+        options.push({
+          label: `${m < 10 ? "0" + m : m}`,
+          value: m,
+        });
       }
       return options;
     },
@@ -168,21 +182,89 @@ export default {
       }));
     },
   },
+  watch: {
+    visible: {
+      handler(newV, oldV) {
+        if (!newV) {
+          return;
+        }
+        const { date, hour, minute } = this.getDateTime(new Date());
+
+        this.formData = {
+          type: "0",
+          date,
+          hour,
+          minute,
+        };
+
+        // 如果编辑过一条数据，再关闭，然后再添加一条数据，
+        // 此时在当前组件的声明周期内，formData.amount 字段从有值变成了 undefined,
+        // 会触发 v-form 校验
+        // 所以每次打开弹窗时手动重置表单的校验信息
+        this.$refs?.form?.resetValidation();
+      },
+      immediate: true,
+    },
+    data: {
+      handler(newV, oldV) {
+        if (!newV || newV === oldV) {
+          return;
+        }
+        const { date, hour, minute } = this.getDateTime(
+          newV?.time ? parseInt(newV.time, 10) : new Date()
+        );
+
+        this.formData = {
+          type: "0",
+          date,
+          hour,
+          minute,
+          ...newV,
+        };
+      },
+      immediate: true,
+    },
+  },
+
   methods: {
+    reset() {
+      this.$refs?.form?.resetValidation();
+    },
+
+    /**
+     * leave values empty if milliseconds creates an invalid date object
+     * @reutrn { date: "2020-11-23", hour: "4", minute: "5" }
+     */
+    getDateTime(milliseconds) {
+      const result = {
+        date: "",
+        hour: "",
+        minute: "",
+      };
+      const d = new Date(milliseconds);
+      if (d.toString() === "Invalid Date") {
+        return result;
+      }
+      let month = d.getMonth() + 1;
+      month = month < 10 ? "0" + month : month;
+      let date = d.getDate();
+      date = date < 10 ? "0" + date : date;
+      result.date = `${d.getFullYear()}-${month}-${date}`;
+      result.hour = d.getHours();
+      result.minute = d.getMinutes();
+      return result;
+    },
+
     onCategoryAdd(data) {
       this.$store.dispatch("categories/add", data);
     },
 
     close() {
-      this.dialog = false;
-    },
-
-    validate() {
-      this.$refs.form.validate();
+      this.reset();
+      this.$emit("close");
     },
 
     save() {
-      this.dialog = false;
       const time = new Date(this.formData.date);
       time.setHours(this.formData.hour);
       time.setMinutes(this.formData.minute);
@@ -194,6 +276,7 @@ export default {
       delete data.minute;
       delete data.date;
       this.$emit("change", data);
+      this.close();
     },
   },
 };

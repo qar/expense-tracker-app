@@ -3,6 +3,27 @@
     <v-row no-gutters class="fill-height">
       <v-col cols="12" sm="12" md="12">
         <v-card tile outlined width="100%">
+          <add-entry-dialog
+            :visible="dialogs.entry.visible"
+            :data="dialogs.entry.data"
+            class="ma-2"
+            @change="onEntryAdd"
+            @close="closeEntryDialog()"
+          />
+
+          <v-dialog v-model="dialogs.del.visible" max-width="500px">
+            <v-card>
+              <v-card-title class="text-h5">确定要删除这条记录吗？</v-card-title>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="closeDelDialog()">取消</v-btn>
+                <v-btn color="blue darken-1" text @click="removeEntry(dialogs.del.data)"
+                  >确定</v-btn
+                >
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
           <v-data-table
             :headers="headers"
             :items="displayTransactions"
@@ -18,7 +39,7 @@
                   <v-chip label outlined class="ma-2" color="red"> 支出 {{ outcomeText }}</v-chip>
                 </v-chip-group>
                 <v-spacer></v-spacer>
-                <add-entry-dialog class="ma-2" @change="onEntryAdd" />
+                <v-btn color="primary" dark class="ml-2" @click="openEntryDialog()">添加</v-btn>
               </v-toolbar>
             </template>
 
@@ -47,6 +68,10 @@
             <template v-slot:item.category="{ value }">{{
               value | category(categoryMap)
             }}</template>
+            <template v-slot:item.actions="{ item }">
+              <v-icon small class="mr-2" @click="openEntryDialog(item)"> mdi-pencil </v-icon>
+              <v-icon small @click="openDeleteConfirmDialog(item)"> mdi-delete</v-icon>
+            </template>
           </v-data-table>
         </v-card>
       </v-col>
@@ -69,7 +94,11 @@ export default {
   },
   filters: {
     date(value) {
-      return format(new Date(parseInt(value, 10)), "yyyy-MM-dd HH:mm:ss");
+      try {
+        return format(new Date(parseInt(value, 10)), "yyyy-MM-dd HH:mm:ss");
+      } catch (err) {
+        return "-";
+      }
     },
 
     category(value, categoryMap) {
@@ -82,6 +111,15 @@ export default {
   },
   data() {
     return {
+      dialogs: {
+        entry: {
+          visible: false,
+          data: undefined,
+        },
+        del: {
+          visible: false,
+        },
+      },
       headers: [
         {
           text: "账单时间",
@@ -92,6 +130,7 @@ export default {
         { text: "账单类型", value: "type" },
         { text: "账单分类", value: "category" },
         { text: "账单金额", value: "amount" },
+        { text: "操作", value: "actions", sortable: false },
       ],
 
       backup: [],
@@ -151,6 +190,39 @@ export default {
   },
 
   methods: {
+    openEntryDialog(data) {
+      this.$set(this.dialogs, "entry", {
+        visible: true,
+        data,
+      });
+    },
+
+    closeEntryDialog() {
+      this.$set(this.dialogs, "entry", {
+        visible: false,
+        data: undefined,
+      });
+    },
+
+    openDeleteConfirmDialog(data) {
+      this.$set(this.dialogs, "del", {
+        visible: true,
+        data,
+      });
+    },
+
+    closeDelDialog() {
+      this.$set(this.dialogs, "del", {
+        visible: false,
+        data: undefined,
+      });
+    },
+
+    async removeEntry(data) {
+      await this.$store.dispatch("transactions/remove", data?.id);
+      this.closeDelDialog();
+    },
+
     filterByMonth(item, month) {
       if (!month) {
         return true;
@@ -171,7 +243,7 @@ export default {
     },
 
     onEntryAdd(data) {
-      this.$store.dispatch("transactions/addEntry", data);
+      this.$store.dispatch("transactions/upsertEntry", data);
     },
   },
 };

@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import { nanoid } from "nanoid";
 import csvtojsonV2 from "csvtojson";
 
 export default {
@@ -72,6 +73,10 @@ export default {
 
     async onTransactionsFileChange(file) {
       this.transactions = await this.onFileChange(file);
+      this.transactions = this.transactions.map((i) => ({
+        ...i,
+        id: nanoid(16),
+      }));
     },
 
     async onCategoriesFileChange(file) {
