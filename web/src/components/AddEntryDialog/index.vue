@@ -24,12 +24,53 @@
               </v-col>
 
               <v-col cols="12" md="12">
-                <v-text-field
-                  label="时间"
-                  v-model="formData.time"
-                  :rules="[rules.required]"
-                  type="datetime-local"
-                ></v-text-field>
+                <v-row>
+                  <v-col cols="6" md="6">
+                    <v-menu
+                      ref="dateMenu"
+                      v-model="dateMenu"
+                      :close-on-content-click="false"
+                      :return-value.sync="formData.date"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="formData.date"
+                          label="日期"
+                          :rules="[rules.required]"
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker v-model="formData.date" no-title scrollable>
+                        <v-spacer></v-spacer>
+                        <v-btn text color="primary" @click="dateMenu = false">取消</v-btn>
+                        <v-btn text color="primary" @click="$refs.dateMenu.save(formData.date)">
+                          确定
+                        </v-btn>
+                      </v-date-picker>
+                    </v-menu>
+                  </v-col>
+                  <v-col cols="3" md="3">
+                    <v-select
+                      v-model="formData.hour"
+                      :items="hourOptions"
+                      :rules="[rules.required]"
+                      label="时"
+                    ></v-select>
+                  </v-col>
+                  <v-col cols="3" md="3">
+                    <v-select
+                      v-model="formData.minute"
+                      :items="minuteOptions"
+                      :rules="[rules.required]"
+                      label="分"
+                    ></v-select>
+                  </v-col>
+                </v-row>
               </v-col>
 
               <v-col cols="12" md="12">
@@ -81,6 +122,7 @@ export default {
   data() {
     return {
       valid: false,
+      dateMenu: false,
       formData: {
         time: new Date().toISOString().slice(0, 19),
       },
@@ -103,6 +145,22 @@ export default {
     };
   },
   computed: {
+    hourOptions() {
+      const options = [];
+      for (let h = 0; h <= 24; h++) {
+        options.push(`${h < 10 ? "0" + h : h}`);
+      }
+      return options;
+    },
+
+    minuteOptions() {
+      const options = [];
+      for (let m = 0; m <= 59; m++) {
+        options.push(`${m < 10 ? "0" + m : m}`);
+      }
+      return options;
+    },
+
     categories() {
       return this.$store.state.categories.categories.map((i) => ({
         value: i.id,
@@ -125,7 +183,17 @@ export default {
 
     save() {
       this.dialog = false;
-      this.$emit("change", this.formData);
+      const time = new Date(this.formData.date);
+      time.setHours(this.formData.hour);
+      time.setMinutes(this.formData.minute);
+      const data = {
+        ...this.formData,
+        time: time.valueOf().toString(),
+      };
+      delete data.hour;
+      delete data.minute;
+      delete data.date;
+      this.$emit("change", data);
     },
   },
 };
