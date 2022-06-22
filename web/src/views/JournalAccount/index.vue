@@ -58,8 +58,8 @@
 import { mapState } from "vuex";
 import currency from "currency.js";
 import { addMonths, format, startOfMonth, endOfMonth, isEqual, isAfter, isBefore } from "date-fns";
-import AddEntryDialog from "./AddEntryDialog";
-import DateSelectDialog from "./DateSelectDialog";
+import AddEntryDialog from "@/components/AddEntryDialog";
+import DateSelectDialog from "@/components/DateSelectDialog";
 
 export default {
   name: "JournalAccount",
