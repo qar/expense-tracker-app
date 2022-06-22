@@ -52,7 +52,7 @@
                 <v-text-field
                   label="金额"
                   v-model="formData.amount"
-                  :rules="[rules.required]"
+                  :rules="[rules.required, rules.currency]"
                   prefix="￥"
                 ></v-text-field>
               </v-col>
@@ -86,6 +86,7 @@ export default {
       },
       rules: {
         required: (value) => !!value || "必填",
+        currency: (value) => !Number.isNaN(Number(value)) || "无法识别的金额",
       },
       dialog: false,
       formTitle: "记帐",
