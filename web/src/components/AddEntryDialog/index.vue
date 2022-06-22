@@ -6,6 +6,11 @@
       </v-card-title>
 
       <v-card-text>
+        <add-category-dialog
+          :visible="dialogs.category.visible"
+          @change="onCategoryAdd"
+          @close="closeCategoryDialog()"
+        />
         <v-form ref="form" v-model="valid">
           <v-container>
             <v-row>
@@ -40,6 +45,9 @@
                   <template v-slot:append-item>
                     <v-divider class="mb-2"></v-divider>
                     <add-category-dialog class="ma-2" @change="onCategoryAdd" quickLink />
+                    <v-btn color="blue darken-1" text plain @click="openCategoryDialog()"
+                      >新建账单分类</v-btn
+                    >
                   </template>
                 </v-select>
               </v-col>
@@ -131,6 +139,11 @@ export default {
   },
   data() {
     return {
+      dialogs: {
+        category: {
+          visible: false,
+        },
+      },
       valid: false,
       dateMenu: false,
       formData: {},
@@ -227,6 +240,18 @@ export default {
   },
 
   methods: {
+    openCategoryDialog() {
+      this.$set(this.dialogs, "category", {
+        visible: true,
+      });
+    },
+
+    closeCategoryDialog() {
+      this.$set(this.dialogs, "category", {
+        visible: false,
+      });
+    },
+
     reset() {
       this.$refs?.form?.resetValidation();
     },
@@ -256,7 +281,7 @@ export default {
     },
 
     onCategoryAdd(data) {
-      this.$store.dispatch("categories/add", data);
+      this.$store.dispatch("categories/upsert", data);
     },
 
     close() {

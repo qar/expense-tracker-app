@@ -23,13 +23,30 @@ export default {
       persistData(STORAGE_KEY, data);
     },
 
-    async add(ctx, data) {
-      let id = nanoid(10);
-      while (ctx.state.categories.find((i) => i.id == id)) {
-        id = nanoid(10);
+    async upsert(ctx, data) {
+      let id = data?.id;
+      let newList = [...ctx.state.categories];
+      if (!id) {
+        // new
+        while (newList.find((i) => i.id == id)) {
+          id = nanoid(10);
+        }
+        newList = [...newList, { ...data, id }];
+      } else {
+        // update
+        const index = newList.findIndex((i) => i.id === id);
+        newList[index] = {
+          ...data,
+        };
       }
-      const newData = [...ctx.state.categories, { ...data, id }];
-      ctx.dispatch("setData", newData);
+      ctx.dispatch("setData", newList);
+    },
+
+    async remove(ctx, id) {
+      const newList = [...ctx.state.categories];
+      const index = newList.findIndex((i) => i.id === id);
+      newList.splice(index, 1);
+      ctx.dispatch("setData", newList);
     },
   },
 };

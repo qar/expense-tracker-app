@@ -1,11 +1,5 @@
 <template>
-  <v-dialog v-model="dialog" max-width="500px">
-    <template v-slot:activator="{ on, attrs }">
-      <v-btn v-if="quickLink" color="blue darken-1" text plain v-bind="attrs" v-on="on">{{
-        formTitle
-      }}</v-btn>
-      <v-btn v-else color="primary" dark class="ml-2" v-bind="attrs" v-on="on">添加</v-btn>
-    </template>
+  <v-dialog :value="visible" max-width="500px">
     <v-card>
       <v-card-title>
         <span class="text-h5">{{ formTitle }}</span>
@@ -51,9 +45,13 @@
 export default {
   name: "AddCategoryDialog",
   props: {
-    quickLink: {
+    visible: {
       type: Boolean,
       default: false,
+    },
+    data: {
+      type: Object,
+      default: undefined,
     },
   },
   data() {
@@ -64,8 +62,6 @@ export default {
       },
       valid: false,
       formData: {},
-      dialog: false,
-      formTitle: "新建账单分类",
       types: [
         {
           label: "支出",
@@ -78,14 +74,35 @@ export default {
       ],
     };
   },
+
+  watch: {
+    data: {
+      handler(newV, oldV) {
+        if (!newV || newV === oldV) {
+          return;
+        }
+        console.log(newV);
+        this.formData = {
+          ...newV,
+        };
+      },
+      immediate: true,
+    },
+  },
+
+  computed: {
+    formTitle() {
+      return this.data?.id ? "编辑账单分类" : "新建账单分类";
+    },
+  },
   methods: {
     close() {
-      this.dialog = false;
+      this.$emit("close");
     },
 
     save() {
       this.validate();
-      this.dialog = false;
+      this.close();
       this.$emit("change", this.formData);
     },
 
@@ -97,7 +114,11 @@ export default {
      * @return true - is unique
      */
     isUniqueCategory(val) {
-      return !this.$store.state.categories.categories.find((i) => i.name === val) || "已存在";
+      const one = this.$store.state.categories.categories.find((i) => i.name === val);
+      if (one && one.id !== this.data?.id) {
+        return "已存在";
+      }
+      return true;
     },
   },
 };
