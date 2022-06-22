@@ -32,6 +32,16 @@ export default {
           text: "导入测试账单 CSV 文件",
           clickHandler: () => this.$emit("import"),
         },
+        {
+          icon: "mdi-application-export",
+          text: "导出账单 CSV 文件",
+          clickHandler: () => this.$emit("export-transactions"),
+        },
+        {
+          icon: "mdi-application-export",
+          text: "导出账单分类 CSV 文件",
+          clickHandler: () => this.$emit("export-categories"),
+        },
       ],
     };
   },
